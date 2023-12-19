@@ -15,6 +15,8 @@ val creators = listOf(
     Creator("구름 종류", "https://app.cloudtype.io/", "한 학기간 고마웠어"),
     Creator("노화의 주범", "https://github.com/cream-opensource", "증오, 원망,  그리고 용서"),
     Creator("국어 선생님", "https://search.naver.com/search.naver?sm=tab_hty.top&where=nexearch&query=%EB%A7%9E%EC%B6%A4%EB%B2%95+%EA%B2%80%EC%82%AC%EA%B8%B0&oquery=%EB%A7%9E%EC%B6%A4%EB%B2%95+%EA%B2%80%EC%82%AC%EA%B8%B0&tqi=ihcFasqVN8wsstI7n2ossssst5V-003431", "감사합니다"),
+    Creator("앞마당", "https://github.com/m-a-king/SAP_TP_20171115_Kotlin.git", "본 앱의 프론트엔드 레포지토리"),
+    Creator("뒷마당", "https://github.com/m-a-king/SAP_TP_20171115.git", "본 앱의 백엔드 레포지토리"),
 
 
 )
