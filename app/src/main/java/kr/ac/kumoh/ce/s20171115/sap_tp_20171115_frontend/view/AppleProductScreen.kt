@@ -1,14 +1,11 @@
 package kr.ac.kumoh.ce.s20171115.sap_tp_20171115_frontend.view
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -33,6 +30,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material3.Button
@@ -41,6 +39,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalDrawerSheet
@@ -62,10 +62,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -104,7 +110,7 @@ fun AppleProductApp(fullProductsInfoList: List<FullProductInfo>) {
                         brush = Brush.horizontalGradient(
                             colors = listOf(
                                 Color(222, 222, 222), Color(22, 22, 22)
-                            ) // 여기에 원하는 그라데이션 색상을 설정하세요
+                            )
                         )
                     )
             ) {
@@ -120,7 +126,7 @@ fun AppleProductApp(fullProductsInfoList: List<FullProductInfo>) {
                         }
                     }, colors = TopAppBarDefaults.smallTopAppBarColors(
                         containerColor = Color.Transparent, // 배경색 투명
-                        titleContentColor = Color.Black // 텍스트 색상 설정
+                        titleContentColor = Color.Black
                     )
                 )
             }
@@ -147,7 +153,7 @@ fun AppleProductApp(fullProductsInfoList: List<FullProductInfo>) {
                         } else {
                             val noReviewAvailable = Review(
                                 reviewId = -1, // 임시 ID
-                                productId = productId, // 현재 조회 중인 제품의 ID
+                                productId = productId,
                                 reviewer = "시스템 메시지", rating = 0, comment = "아직 리뷰가 없습니다."
                             )
 
@@ -163,6 +169,64 @@ fun AppleProductApp(fullProductsInfoList: List<FullProductInfo>) {
         }
     }
 }
+
+@Composable
+fun CategoryDropdownMenu(
+    categories: List<String>,
+    selectedCategory: String,
+    onCategorySelected: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                brush = Brush.horizontalGradient(
+                    colors = listOf(Color(222, 222, 222), Color(22, 22, 22)) // 그라데이션
+                )
+            )
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        contentAlignment = Alignment.CenterEnd
+    ) {
+        Row(
+            modifier = Modifier
+                .clickable { expanded = true }
+                .background(Color(222, 222, 222), RoundedCornerShape(4.dp))
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = selectedCategory,
+                color = Color.Black
+            )
+            Icon(
+                imageVector = Icons.Filled.ArrowDropDown, // 드롭다운 화살표 아이콘
+                contentDescription = "드롭다운 메뉴",
+                tint = Color.Black
+            )
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White)
+        ) {
+            categories.forEach { category ->
+                DropdownMenuItem(
+                    text = { Text(text = category, color = Color.Black) },
+                    onClick = {
+                        onCategorySelected(category)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+
 
 @Composable
 fun CreatorItem(name: String, url: String, description: String) {
@@ -184,12 +248,16 @@ fun CreatorItem(name: String, url: String, description: String) {
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Default.Link, contentDescription = "Link Icon", modifier = Modifier.size(30.dp))
+            Icon(
+                Icons.Default.Link,
+                contentDescription = "Link Icon",
+                modifier = Modifier.size(30.dp)
+            )
             Spacer(modifier = Modifier.width(15.dp))
             Column {
                 Text(text = name, fontWeight = FontWeight.Bold, fontSize = 20.sp)
                 Spacer(modifier = Modifier.height(10.dp))
-                Text(text = description, fontSize = 15.sp) // 한 줄 설명
+                Text(text = description, fontSize = 15.sp)
             }
         }
     }
@@ -211,7 +279,11 @@ fun CreatorScreen(innerPadding: PaddingValues) {
             contentPadding = innerPadding
         ) {
             this.items(creators) { creator ->
-                CreatorItem(name = creator.name, url = creator.url, description = creator.description)
+                CreatorItem(
+                    name = creator.name,
+                    url = creator.url,
+                    description = creator.description
+                )
             }
         }
     }
@@ -281,31 +353,55 @@ fun AppleProductList(
     fullProductInfos: List<FullProductInfo>,
     innerPadding: PaddingValues
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.horizontalGradient(
-//                brush = Brush.verticalGradient(
-//                brush = Brush.radialGradient(
-                    colors = listOf(Color(222, 222, 222), Color(22, 22, 22)) // 그라데이션
-                )
-            )
-    ) {
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(16.dp), contentPadding = PaddingValues(
-                top = innerPadding.calculateTopPadding() + 8.dp, // 탑바와 첫 아이템의 간격
-                bottom = innerPadding.calculateBottomPadding(), start = 8.dp, end = 8.dp
-            )
-        ) {
-            items(fullProductInfos) { fullProductInfo ->
-                AppleProduct(
-                    navController = navController,
-                    appleProduct = fullProductInfo.product,
-                    appleProductProductImage = fullProductInfo.productImage,
-                    appleProductSpec = fullProductInfo.specification,
+    var selectedCategory by remember { mutableStateOf("All") }
+    val categories = listOf(
+        "All",
+        "Smartphone",
+        "Laptop",
+        "Smartwatch",
+        "Earbuds",
+        "Headphones",
+        "Tablet",
+        "Desktop",
+        "Monitor"
+    )
 
+    Column(modifier = Modifier.padding(innerPadding)) {
+        // 카테고리 선택 UI
+        CategoryDropdownMenu(
+            categories = categories,
+            selectedCategory = selectedCategory,
+            onCategorySelected = { category -> selectedCategory = category }
+        )
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    brush = Brush.horizontalGradient(
+                        colors = listOf(Color(222, 222, 222), Color(22, 22, 22))
                     )
+                )
+        ) {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(8.dp)
+            ) {
+                // 필터링된 제품 목록
+                val filteredProducts = if (selectedCategory == "All") {
+                    fullProductInfos
+                } else {
+                    fullProductInfos.filter { it.product.category == selectedCategory }
+                }
+
+                items(filteredProducts) { fullProductInfo ->
+                    AppleProduct(
+                        navController = navController,
+                        appleProduct = fullProductInfo.product,
+                        appleProductProductImage = fullProductInfo.productImage,
+                        appleProductSpec = fullProductInfo.specification
+                    )
+                }
             }
         }
     }
@@ -356,15 +452,61 @@ fun ProductRow(
 }
 
 @Composable
+fun ResponsiveText(text: String, initialFontSize: TextUnit, maxWidth: Dp) {
+    val context = LocalContext.current
+    var fontSize by remember { mutableStateOf(initialFontSize) }
+
+    val paint = Paint().asFrameworkPaint().apply {
+        isAntiAlias = true
+    }
+
+    fontSize = calculateFontSizeForWidth(text, initialFontSize, maxWidth, paint, context)
+
+    Text(
+        text,
+        color = Color(222, 222, 222),
+        fontSize = fontSize,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis
+    )
+}
+
+fun calculateFontSizeForWidth(
+    text: String, initialFontSize: TextUnit, maxWidth: Dp, paint: android.graphics.Paint,
+    context: Context
+): TextUnit {
+    val density = context.resources.displayMetrics.density
+    var fontSize = initialFontSize.value
+
+    paint.textSize = fontSize * density
+    if (paint.measureText(text) <= maxWidth.value * density) {
+        return initialFontSize
+    }
+
+    while (paint.measureText(text) > maxWidth.value * density && fontSize > 0) {
+        fontSize -= 1
+        paint.textSize = fontSize * density
+    }
+
+    return fontSize.sp
+}
+
+
+@Composable
 fun ProductInfo(appleProduct: Product) {
     Column(
-        modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, // 세로축 중앙 정렬
-        horizontalAlignment = Alignment.CenterHorizontally // 가로축 중앙 정렬
+        modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("${appleProduct.model}", fontSize = 25.sp, color = Color(235, 235, 235)) // 제품명
+        ResponsiveText(
+            text = appleProduct.model,
+            initialFontSize = 25.sp,
+            maxWidth = 222.dp // 최대 너비 설정
+        )
+        Spacer(modifier = Modifier.height(10.dp))
         Text("카테고리: ${appleProduct.category}", fontSize = 15.sp, color = Color(235, 235, 235))
 
-        //formatReleaseDate를 사용하기 위해서 안드로이드 버전 코드가 0보다 높아야함 (오레오 26)
+        //formatReleaseDate를 사용하기 위해서 안드로이드 버전 코드가 0보다 높아야한다는 오류가 났음 (오레오 26)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Text(
                 "출시일: ${appleProduct.formatReleaseDate(appleProduct.releaseDate)}",
@@ -374,16 +516,25 @@ fun ProductInfo(appleProduct: Product) {
     }
 }
 
+
 @Composable
 fun ProductImage(productImage: ProductImage) {
-    AsyncImage(
-        model = productImage.imageUrl,
-        contentDescription = productImage.description,
-        contentScale = ContentScale.Crop,
+    var sizeState by remember { mutableStateOf(IntSize.Zero) }
+
+    Box(
         modifier = Modifier
             .size(100.dp)
-            .clip(RoundedCornerShape(percent = 10))
-    )
+            .onSizeChanged { sizeState = it }
+    ) {
+        AsyncImage(
+            model = productImage.imageUrl,
+            contentDescription = productImage.description,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(sizeState.width.dp, sizeState.height.dp)
+                .clip(RoundedCornerShape(percent = 10))
+        )
+    }
 }
 
 @Composable
@@ -398,7 +549,7 @@ fun ProductDetails(
 
     ) {
         Column(
-            modifier = Modifier.weight(1f),  // 스펙이 남은 공간을 차지하도록 설정
+            modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.Top
         ) {
             appleProductSpec?.let { spec ->
@@ -406,7 +557,7 @@ fun ProductDetails(
             }
         }
         Column(
-            horizontalAlignment = Alignment.End  // 리뷰 버튼을 오른쪽에 정렬
+            horizontalAlignment = Alignment.End
         ) {
             ReviewButton(navController, appleProduct)
         }
@@ -435,8 +586,8 @@ fun ReviewButton(navController: NavController, appleProduct: Product) {
         onClick = {
             navController.navigate(AppleProductScreen.Review.name + "/${appleProduct.productId}")
         }, colors = ButtonDefaults.buttonColors(
-            containerColor = Color(105, 105, 105), // 버튼 배경색
-            contentColor = Color.White    // 버튼 내용 색상
+            containerColor = Color(105, 105, 105),
+            contentColor = Color.White
         )
     ) {
         Text("리뷰 보기", fontSize = 15.sp)
@@ -448,7 +599,7 @@ fun ReviewButton(navController: NavController, appleProduct: Product) {
 fun ReviewList(reviews: List<Review>, innerPadding: PaddingValues) {
     Column(
         modifier = Modifier
-            .fillMaxSize() // Column이 사용 가능한 모든 공간을 채우도록 설정
+            .fillMaxSize()
             .fillMaxWidth()
             .background(
                 brush = Brush.horizontalGradient(
@@ -491,7 +642,7 @@ fun ReviewItem(review: Review) {
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         AccountCircleIcon()
-                        Spacer(modifier = Modifier.width(8.dp)) // 아이콘과 텍스트 사이 간격
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = review.reviewer,
                             fontSize = 25.sp,
@@ -501,7 +652,7 @@ fun ReviewItem(review: Review) {
                     }
                 }
 
-                // 사과 그림을 포함하는 Box
+                // applePoint (starPoint -> 별점)
                 Box {
                     ReviewRating(review.rating)
                 }
