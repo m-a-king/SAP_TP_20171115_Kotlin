@@ -32,6 +32,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -43,6 +44,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
@@ -68,6 +70,8 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontWeight.Companion.W500
+import androidx.compose.ui.text.font.FontWeight.Companion.W700
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
@@ -81,6 +85,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import coil.compose.AsyncImage
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kr.ac.kumoh.ce.s20171115.sap_tp_20171115_frontend.R
 import kr.ac.kumoh.ce.s20171115.sap_tp_20171115_frontend.model.FullProductInfo
@@ -98,9 +103,10 @@ enum class AppleProductScreen {
 fun AppleProductApp(fullProductsInfoList: List<FullProductInfo>) {
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
 
     ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
-        DrawerSheet(drawerState, navController)
+        DrawerSheet(drawerState, navController, scope)
     }) {
         Scaffold(topBar = {
             Box(
@@ -116,19 +122,44 @@ fun AppleProductApp(fullProductsInfoList: List<FullProductInfo>) {
             ) {
                 TopAppBar(
                     title = {
-                        Box(
-                            modifier = Modifier
-                                .clickable {
-                                    navController.navigate(AppleProductScreen.Product.name)
-                                }, contentAlignment = Alignment.Center
-                        ) {
-                            ProductIcon(50)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Row(
+                                modifier = Modifier
+                                    .clickable { navController.navigate(AppleProductScreen.Product.name) },
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                ProductIcon(50)
+                                Spacer(Modifier.width(8.dp))
+                                Text("appleProducts: ", color = Color.Black, fontSize = 20.sp, fontWeight = FontWeight.W600)
+                            }
+
+                            // "TermProject" 부분에는 클릭 이벤트를 적용하지 않음, 코틀린 문법으로 앱 타이틀 정함!
+                            Text("TermProject", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.W400)
                         }
-                    }, colors = TopAppBarDefaults.smallTopAppBarColors(
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            scope.launch {
+                                if (drawerState.isClosed) {
+                                    drawerState.open()
+                                } else {
+                                    drawerState.close()
+                                }
+                            }
+                        }, modifier = Modifier.size(40.dp)) {
+                            Icon(
+                                imageVector = Icons.Filled.Menu,
+                                contentDescription = "드로어바 아이콘",
+                                modifier = Modifier.size(25.dp)
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.smallTopAppBarColors(
                         containerColor = Color.Transparent, // 배경색 투명
                         titleContentColor = Color.Black
                     )
                 )
+
             }
         }) { innerPadding ->
 
@@ -292,9 +323,9 @@ fun CreatorScreen(innerPadding: PaddingValues) {
 
 @Composable
 fun DrawerSheet(
-    drawerState: DrawerState, navController: NavController
+    drawerState: DrawerState, navController: NavController, scope: CoroutineScope
 ) {
-    val scope = rememberCoroutineScope()
+
     ModalDrawerSheet {
 
         NavigationDrawerItem(icon = { ProductIcon(33) },
