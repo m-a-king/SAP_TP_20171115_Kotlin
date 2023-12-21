@@ -1,0 +1,19 @@
+@startuml
+actor 사용자
+participant "애플 제품 카드" as Card
+participant "리뷰 버튼" as ReviewBtn
+participant "리뷰 페이지" as ReviewPage
+
+사용자 -> Card: 리뷰 버튼 클릭
+activate Card
+
+Card -> ReviewBtn: 리뷰 버튼 클릭
+activate ReviewBtn
+
+ReviewBtn -> ReviewPage: 리뷰 페이지로 이동
+activate ReviewPage
+
+ReviewPage -> ReviewPage: 리뷰 정보 표시 (이름, 평점, 코멘트)
+deactivate ReviewBtn
+deactivate ReviewPage
+@enduml

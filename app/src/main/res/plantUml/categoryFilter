@@ -1,0 +1,20 @@
+@startuml
+actor 사용자
+participant "애플 제품 리스트" as ProductListPage
+participant "필터 옵션" as FilterOption
+participant "선택된 카테고리에 해당하는 제품 리스트" as SelectedCategoryPage
+
+사용자 -> ProductListPage: 필터 버튼 클릭
+activate ProductListPage
+
+ProductListPage -> FilterOption: 카테고리 선택
+activate FilterOption
+deactivate ProductListPage
+
+사용자 -> FilterOption: 카테고리 선택 (예: Smartphone)
+FilterOption -> SelectedCategoryPage: 선택된 카테고리 제품 표시
+activate SelectedCategoryPage
+deactivate FilterOption
+
+deactivate SelectedCategoryPage
+@enduml

@@ -1,0 +1,20 @@
+@startuml
+actor 사용자
+participant "앱 상단 바" as TopBar
+participant "애플 제품 리스트" as ProductListPage
+
+사용자 -> TopBar: 앱 타이틀 클릭
+activate TopBar
+
+alt 애플 제품 리스트 화면에 위치한 경우
+    TopBar -> ProductListPage: 최상단으로 이동
+    activate ProductListPage
+    deactivate ProductListPage
+else 애플 제품 리스트 화면에 위치하지 않은 경우
+    TopBar -> ProductListPage: 애플 제품 리스트로 이동
+    activate ProductListPage
+    deactivate ProductListPage
+end
+
+deactivate TopBar
+@enduml

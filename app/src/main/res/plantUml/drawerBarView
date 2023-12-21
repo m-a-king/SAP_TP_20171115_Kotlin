@@ -1,0 +1,26 @@
+@startuml
+actor 사용자
+participant "앱 상단 바" as TopBar
+participant "드로어바" as Drawer
+participant "'애플 제품 리스트' 페이지" as ProductList
+participant "'제작에 도움을 주신 분들' 페이지" as CreditPage
+
+사용자 -> TopBar: 메뉴 버튼 클릭
+activate TopBar
+
+TopBar -> Drawer: 드로어바 열기
+activate Drawer
+
+사용자 -> Drawer: '애플 제품 리스트' 클릭
+Drawer -> ProductList: 페이지로 이동
+activate ProductList
+deactivate Drawer
+
+사용자 -> Drawer: '제작에 도움을 주신 분들' 클릭
+Drawer -> CreditPage: 페이지로 이동
+activate CreditPage
+deactivate Drawer
+
+deactivate ProductList
+deactivate CreditPage
+@enduml

@@ -1,0 +1,20 @@
+@startuml
+actor 사용자
+participant "드로어바 메뉴" as Menu
+participant "'제작에 도움을 주신 분들' 페이지" as CreditPage
+participant "외부 웹 브라우저" as Browser
+
+사용자 -> Menu: '제작에 도움을 주신 분들' 선택
+activate Menu
+
+Menu -> CreditPage: 페이지 표시
+activate CreditPage
+
+사용자 -> CreditPage: 카드 선택
+CreditPage -> Browser: 링크로 이동
+activate Browser
+
+Browser -> Browser: 웹 사이트 표시
+deactivate CreditPage
+deactivate Browser
+@enduml

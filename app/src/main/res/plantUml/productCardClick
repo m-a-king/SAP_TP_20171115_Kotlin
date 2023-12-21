@@ -1,0 +1,22 @@
+@startuml
+actor 사용자
+participant "애플 제품 카드" as Card
+participant "제품 상세 정보" as Specs
+participant "리뷰 버튼" as ReviewBtn
+
+사용자 -> Card: 제품 카드 클릭
+activate Card
+
+Card -> Specs: 사양 확장 및 표시
+activate Specs
+
+Specs -> ReviewBtn: 리뷰 버튼 표시
+activate ReviewBtn
+
+사용자 -> Card: 제품 카드 다시 클릭
+deactivate ReviewBtn
+deactivate Specs
+
+Card -> Card: 원래 상태로 접기
+deactivate Card
+@enduml
